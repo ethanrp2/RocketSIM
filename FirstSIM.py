@@ -1,6 +1,7 @@
 # This class creates a basic simulation of a rocket through its 5 stages with a constant time step then graphs it
 
 #Define Variables
+from itertools import count
 import matplotlib.pyplot as plt
 
 dt = 10e-3
@@ -45,7 +46,7 @@ def updateState():
     sim_dict["velocity"].append(velocity)
     sim_dict["acceleration"].append(acceleration)
     sim_dict["time"].append(current_time)
-    
+    # print(velocity)
     altitude = altitude + velocity*dt + 0.5*acceleration*dt**2
     velocity = velocity + acceleration*dt
     current_time += dt
@@ -53,7 +54,7 @@ def updateState():
     
 def launch_SIM():
     print("launch")
-    boost(5)
+    boost(2)
 
 def boost(boost_time):
     print ("boost")
@@ -64,40 +65,43 @@ def boost(boost_time):
         updateState()
     coast()
     
-
 def coast():
+    print("coast")
     global acceleration
-
     acceleration = -9.8
     while (velocity > 0):
-        updateState
-    ejection()
-    
+        updateState()
+    print("end")
+    ejection(5)
+
 def ejection(delay_time):
+    print("ejection")
     global acceleration, current_time
     
     delay_initial_time = current_time
     while (current_time <= delay_initial_time + delay_time):
-        updateState
+        updateState()
     acceleration = 0
     recovery()
 
 def recovery():
+    print("recovery")
     global velocity, altitude
     while (velocity < 0 and altitude > 0):
-        updateState
+        updateState()
     ground_hit()
 
 def ground_hit():
-    print ("SIM ended")
+    print("ground hit")
+    print("SIM ended")
 
 def plot_SIM (measuredDict):
     
     # convert the dict to a list of the values in each column so the data can be plotted
-    timestamp = measuredDict['time'].values()
-    altitude = measuredDict['altitude'].values()
+    # timestamp = measuredDict['time'].values()
+    # altitude = measuredDict['altitude'].values()
     # df_flight_state_est = measuredDict['state_est_x'].values()
-    plt.plot(timestamp, altitude, label = "altitude plot")
+    plt.plot(measuredDict['time'], measuredDict['altitude'], label = "altitude plot")
     # plt.plot(timestamp, kalman_filter.kalman_dict["altitude"], label = "state estimate")
     # plt.plot(df_lowG_timestamp, df_flight_state_est, label = "flight state estimate")
 
@@ -109,5 +113,6 @@ def plot_SIM (measuredDict):
     plt.show()
 
 # print("hello")
-# launch_SIM()
-# plot_SIM(sim_dict)
+launch_SIM()
+# print(sim_dict["velocity"])
+plot_SIM(sim_dict)
