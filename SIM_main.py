@@ -1,7 +1,6 @@
 # This class creates a basic simulation of a rocket through its 5 stages with a constant time step then graphs it
 
 #Define Variables
-from itertools import count
 import matplotlib.pyplot as plt
 import plotSIM as plotSIM
 dt = 10e-3
