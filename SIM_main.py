@@ -3,7 +3,7 @@
 #Define Variables
 from itertools import count
 import matplotlib.pyplot as plt
-
+import plotSIM as plotSIM
 dt = 10e-3
 current_time = 0
 
@@ -15,7 +15,7 @@ altitude = 0
 velocity = 0
 acceleration = 0
 
-dict_counter = 0
+apogee = 0
 
 # State Space Matricies
 # --> x = Ax + Bu
@@ -67,11 +67,12 @@ def boost(boost_time):
     
 def coast():
     print("coast")
-    global acceleration
+    global acceleration, apogee
     acceleration = -9.8
     while (velocity > 0):
         updateState()
-    print("end")
+    apogee = altitude
+
     ejection(5)
 
 def ejection(delay_time):
@@ -115,4 +116,5 @@ def plot_SIM (measuredDict):
 # print("hello")
 launch_SIM()
 # print(sim_dict["velocity"])
-plot_SIM(sim_dict)
+plotSIM.plotter(sim_dict, apogee)
+# plot_SIM(sim_dict)
