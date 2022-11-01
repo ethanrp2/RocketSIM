@@ -1,14 +1,16 @@
 # This class creates a basic simulation of a rocket through its 5 stages with a constant time step then graphs it
-
-#CLASS VARIABLES
 import matplotlib.pyplot as plt
 import plotSIM as plotSIM
+import constants as constants
+
+
+#CLASS VARIABLES
+
 dt = 10e-3
 current_time = 0
 
 motor_thrust = 90 #  (N)
-rocket_mass = 0.76 # (Kg)
-rocket_weight = rocket_mass * 9.8 # (N)
+rocket_weight = constants.rocket_mass * constants.g # (N)
 
 altitude = 0
 velocity = 0
@@ -41,6 +43,9 @@ sim_dict = {
     "time": []
 }
 
+def thrust():
+    #TODO: upload thrust csv file
+    return 1
 
 def updateState(): 
     #TODO: Use State Space Form
@@ -56,7 +61,6 @@ def updateState():
     velocity = velocity + acceleration*dt
     current_time += dt
 
-    
 def launch_SIM(boost_phase_time, ejection_delay_time):
     global boost_time, ejection_delay
     boost_time = boost_phase_time
