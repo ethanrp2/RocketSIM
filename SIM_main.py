@@ -1,6 +1,6 @@
 # This class creates a basic simulation of a rocket through its 5 stages with a constant time step then graphs it
 
-#Define Variables
+#CLASS VARIABLES
 import matplotlib.pyplot as plt
 import plotSIM as plotSIM
 dt = 10e-3
@@ -16,6 +16,13 @@ acceleration = 0
 
 apogee = 0
 
+# LAUNCH VARIABLES
+boost_time = 0
+ejection_delay = 0
+
+
+
+
 # State Space Matricies
 # --> x = Ax + Bu
 
@@ -24,7 +31,6 @@ apogee = 0
 #      [0, 1, dt],
 #      [0, 0, 0]
 # ]
-
 
 
 # Simulation State Dictionary
@@ -51,11 +57,15 @@ def updateState():
     current_time += dt
 
     
-def launch_SIM():
-    print("launch")
-    boost(2)
+def launch_SIM(boost_phase_time, ejection_delay_time):
+    global boost_time, ejection_delay
+    boost_time = boost_phase_time
+    ejection_delay = ejection_delay_time
 
-def boost(boost_time):
+    print("launch")
+    boost()
+
+def boost():
     print ("boost")
     global acceleration
     net_acceleration = motor_thrust - rocket_weight
@@ -72,14 +82,14 @@ def coast():
         updateState()
     apogee = altitude
 
-    ejection(5)
+    ejection()
 
-def ejection(delay_time):
+def ejection():
     print("ejection")
     global acceleration, current_time
     
     delay_initial_time = current_time
-    while (current_time <= delay_initial_time + delay_time):
+    while (current_time <= delay_initial_time + ejection_delay):
         updateState()
     acceleration = 0
     recovery()
@@ -95,25 +105,5 @@ def ground_hit():
     print("ground hit")
     print("SIM ended")
 
-def plot_SIM (measuredDict):
-    
-    # convert the dict to a list of the values in each column so the data can be plotted
-    # timestamp = measuredDict['time'].values()
-    # altitude = measuredDict['altitude'].values()
-    # df_flight_state_est = measuredDict['state_est_x'].values()
-    plt.plot(measuredDict['time'], measuredDict['altitude'], label = "altitude plot")
-    # plt.plot(timestamp, kalman_filter.kalman_dict["altitude"], label = "state estimate")
-    # plt.plot(df_lowG_timestamp, df_flight_state_est, label = "flight state estimate")
-
-
-    plt.title('SIM Plot')
-    plt.xlabel('timestamp (s)')
-    plt.ylabel('altitude (m)')
-    plt.legend()
-    plt.show()
-
-# print("hello")
-launch_SIM()
-# print(sim_dict["velocity"])
+launch_SIM(3, 5)
 plotSIM.plotter(sim_dict, apogee)
-# plot_SIM(sim_dict)
