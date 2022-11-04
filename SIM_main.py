@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import plotSIM as plotSIM
 import constants as constants
-
+import pandas as pandas
 
 #CLASS VARIABLES
 
@@ -10,6 +10,7 @@ dt = 10e-3
 current_time = 0
 
 motor_thrust = 90 #  (N)
+rocket_mass = constants.rocket_mass
 rocket_weight = constants.rocket_mass * constants.g # (N)
 
 altitude = 0
@@ -19,9 +20,7 @@ acceleration = 0
 apogee = 0
 
 # LAUNCH VARIABLES
-boost_time = 0
 ejection_delay = 0
-
 
 
 
@@ -43,11 +42,7 @@ sim_dict = {
     "time": []
 }
 
-def thrust():
-    #TODO: upload thrust csv file
-    return 1
-
-def updateState(): 
+def updateState(time_step=10e-3): 
     #TODO: Use State Space Form
 
     global acceleration, velocity, altitude, current_time, sim_dict
@@ -57,13 +52,12 @@ def updateState():
     sim_dict["acceleration"].append(acceleration)
     sim_dict["time"].append(current_time)
     # print(velocity)
-    altitude = altitude + velocity*dt + 0.5*acceleration*dt**2
-    velocity = velocity + acceleration*dt
-    current_time += dt
+    altitude = altitude + velocity*time_step + 0.5*acceleration*time_step**2
+    velocity = velocity + acceleration*time_step
+    current_time += time_step
 
-def launch_SIM(boost_phase_time, ejection_delay_time):
-    global boost_time, ejection_delay
-    boost_time = boost_phase_time
+def launch_SIM(ejection_delay_time):
+    global ejection_delay
     ejection_delay = ejection_delay_time
 
     print("launch")
@@ -71,11 +65,21 @@ def launch_SIM(boost_phase_time, ejection_delay_time):
 
 def boost():
     print ("boost")
-    global acceleration
-    net_acceleration = motor_thrust - rocket_weight
-    acceleration = net_acceleration
-    while (current_time < boost_time):
-        updateState()
+    global boost_time, acceleration
+
+    thrust_data = pandas.read_csv("csv_data/AeroTech_M2500T_Trimmed.csv").to_dict()
+    boost_time = thrust_data["Time (s)"][len(thrust_data["Time (s)"])-1]
+    thrust_time_delta = thrust_data["Time (s)"][0]
+
+    print(boost_time)
+    for x in thrust_data["Time (s)"]:
+        net_acceleration = (thrust_data["Thrust (N)"][x] - rocket_weight)/(rocket_mass)
+        acceleration = net_acceleration
+
+        if(x!=0):
+            thrust_time_delta = thrust_data["Time (s)"][x] - thrust_data["Time (s)"][x-1]
+        updateState(thrust_time_delta)
+
     coast()
     
 def coast():
@@ -86,28 +90,32 @@ def coast():
         updateState()
     apogee = altitude
 
-    ejection()
+    print("apogee reached")
+    # ejection()
 
-def ejection():
-    print("ejection")
-    global acceleration, current_time
+# def ejection():
+#     print("ejection")
+#     global acceleration, current_time
     
-    delay_initial_time = current_time
-    while (current_time <= delay_initial_time + ejection_delay):
-        updateState()
-    acceleration = 0
-    recovery()
+#     delay_initial_time = current_time
+#     while (current_time <= delay_initial_time + ejection_delay):
+#         updateState()
+#     acceleration = 0
+#     recovery()
 
-def recovery():
-    print("recovery")
-    global velocity, altitude
-    while (velocity < 0 and altitude > 0):
-        updateState()
-    ground_hit()
+# def recovery():
+#     print("recovery")
+#     global velocity, altitude
+#     while (velocity < 0 and altitude > 0):
+#         updateState()
+#     ground_hit()
 
-def ground_hit():
-    print("ground hit")
-    print("SIM ended")
+# def ground_hit():
+#     print("ground hit")
+#     print("SIM ended")
 
-launch_SIM(3, 5)
+# boost()
+
+############ RUN SIM ##############
+launch_SIM(5)
 plotSIM.plotter(sim_dict, apogee)
