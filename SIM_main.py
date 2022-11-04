@@ -81,7 +81,7 @@ def boost():
         updateState(thrust_time_delta)
 
     coast()
-    
+
 def coast():
     print("coast")
     global acceleration, apogee
