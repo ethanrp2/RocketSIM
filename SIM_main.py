@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import plotSIM as plotSIM
 import constants as constants
 import pandas as pandas
+import atmosphere as atmosphere
+import math
 
 #CLASS VARIABLES
 
@@ -18,6 +20,7 @@ velocity = 0
 acceleration = 0
 
 apogee = 0
+
 
 # LAUNCH VARIABLES
 ejection_delay = 0
@@ -70,10 +73,12 @@ def boost():
     thrust_data = pandas.read_csv("csv_data/AeroTech_M2500T_Trimmed.csv").to_dict()
     boost_time = thrust_data["Time (s)"][len(thrust_data["Time (s)"])-1]
     thrust_time_delta = thrust_data["Time (s)"][0]
+    drag = 0
 
     print(boost_time)
     for x in thrust_data["Time (s)"]:
-        net_acceleration = (thrust_data["Thrust (N)"][x] - rocket_weight)/(rocket_mass)
+        drag = atmosphere.density(altitude)*constants.rocket_Cd*((velocity**2)/2)*(constants.rocket_radius**2)*math.pi
+        net_acceleration = (thrust_data["Thrust (N)"][x])/(rocket_mass) - constants.g - drag
         acceleration = net_acceleration
 
         if(x!=0):
@@ -85,12 +90,15 @@ def boost():
 def coast():
     print("coast")
     global acceleration, apogee
-    acceleration = -9.8
+    # acceleration = -9.8
     while (velocity > 0):
+        drag = atmosphere.density(altitude)*constants.rocket_Cd*((velocity**2)/2)*(constants.rocket_radius**2)*math.pi
+        net_acceleration = -(constants.g + drag)
+        acceleration = net_acceleration
         updateState()
     apogee = altitude
 
-    print("apogee reached")
+    print("apogee reached: " + str(apogee))
     # ejection()
 
 # def ejection():
