@@ -54,7 +54,6 @@ def updateState(time_step=10e-3):
     sim_dict["velocity"].append(velocity)
     sim_dict["acceleration"].append(acceleration)
     sim_dict["time"].append(current_time)
-    # print(velocity)
     altitude = altitude + velocity*time_step + 0.5*acceleration*time_step**2
     velocity = velocity + acceleration*time_step
     current_time += time_step
@@ -73,12 +72,9 @@ def boost():
     thrust_data = pandas.read_csv("csv_data/AeroTech_M2500T_Trimmed.csv").to_dict()
     boost_time = thrust_data["Time (s)"][len(thrust_data["Time (s)"])-1]
     thrust_time_delta = thrust_data["Time (s)"][0]
-    drag = 0
 
-    print(boost_time)
     for x in thrust_data["Time (s)"]:
-        drag = atmosphere.density(altitude)*constants.rocket_Cd*((velocity**2)/2)*(constants.rocket_radius**2)*math.pi
-        net_acceleration = (thrust_data["Thrust (N)"][x])/(rocket_mass) - constants.g - drag
+        net_acceleration = (thrust_data["Thrust (N)"][x])/(rocket_mass) - constants.g - (atmosphere.aero_drag(altitude, velocity))/(rocket_mass)
         acceleration = net_acceleration
 
         if(x!=0):
@@ -90,15 +86,15 @@ def boost():
 def coast():
     print("coast")
     global acceleration, apogee
-    # acceleration = -9.8
     while (velocity > 0):
-        drag = atmosphere.density(altitude)*constants.rocket_Cd*((velocity**2)/2)*(constants.rocket_radius**2)*math.pi
-        net_acceleration = -(constants.g + drag)
+        net_acceleration = -(constants.g + (atmosphere.aero_drag(altitude, velocity)/(rocket_mass)))
         acceleration = net_acceleration
         updateState()
+
     apogee = altitude
 
-    print("apogee reached: " + str(apogee))
+    print("apogee reached (m): " + str(apogee))
+    print("time to apogee (s): " + str(current_time))
     # ejection()
 
 # def ejection():

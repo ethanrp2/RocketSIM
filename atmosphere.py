@@ -1,45 +1,18 @@
-
+import constants as constants
+import math as math
 ## Atmospheric Constants
-Temp_standard_conditions = 15
-T_varying_factor = 6.5/1000 # degrees C/meter
-R = 287.053
+T_0 = 288.15 # (Kelvin) --> equivalent of 15 degrees C; temp at standard level at sea
+B = 0.0098 # (degrees Kelvin/meter) --> Temoperature Lapse Rate
+R = 287.053 # (K*(J/Kg))
+rho_0 = 1.225 # (kg/m^3) --> Pressure under standard conditions (Pa)
+C_d = 0.35
+A = math.pi * constants.rocket_radius**2
 
-def density (current_altitude):
+def density (z):
+    # https://www.homerenergy.com/products/pro/docs/latest/altitude.html
 
-    Temp_altitude = Temp_standard_conditions - (T_varying_factor*current_altitude)
+    rho_f = rho_0 * ((1-((B*z)/(T_0)))**(constants.g/(R*B)))*(T_0/(T_0-(B*z)))
+    return rho_f
 
-    return pressure(current_altitude)/(Temp_altitude*R)
-
-def pressure(altitude):
-    '''
-    Determine site pressure from altitude.
-
-    Parameters
-    ----------
-    altitude : numeric
-        Altitude above sea level. [m]
-
-    Returns
-    -------
-    pressure : numeric
-        Atmospheric pressure. [Pa]
-
-    Notes
-    ------
-    The following assumptions are made
-
-    ============================   ================
-    Parameter                      Value
-    ============================   ================
-    Base pressure                  101325 Pa
-    Temperature at zero altitude   288.15 K
-    Gravitational acceleration     9.80665 m/s^2
-    Lapse rate                     -6.5E-3 K/m
-    Gas constant for air           287.053 J/(kg K)
-    Relative Humidity              0%
-    ============================   ================
-    '''
-
-    press = 100 * ((44331.514 - altitude) / 11880.516) ** (1 / 0.1902632)
-
-    return press
+def aero_drag (z, velocity):
+    return 0.5*density(z)*(velocity**2)*C_d*(A)
