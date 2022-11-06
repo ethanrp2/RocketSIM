@@ -1,9 +1,10 @@
 # RocketSIM
-- Simple simulation of rocket through its phases from launch to ground hit
+- Simulation of rocket from launch to apogee
 - Plots Altitude, Velocity, Acceleration
+- Accounts for Aerodynamic Drag
  
 ## Future Additions to SIM
  - Wind
  - Active Controls
  - Simulated Sensor Data from accelerometer/barometer
- - Add Kalman Filter
+ - Kalman Filter for simulated noisy sensor data
