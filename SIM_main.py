@@ -77,8 +77,7 @@ def boost():
     thrust_time_delta = thrust_data["Time (s)"][0]
 
     for x in thrust_data["Time (s)"]:
-        net_acceleration = (thrust_data["Thrust (N)"][x])/(rocket_mass) - constants.g - (atmosphere.aero_drag(altitude, velocity))/(rocket_mass)
-        acceleration = net_acceleration
+        acceleration = (thrust_data["Thrust (N)"][x])/(rocket_mass) - constants.g - (atmosphere.aero_drag(altitude, velocity))/(rocket_mass)
 
         if(x!=0):
             thrust_time_delta = thrust_data["Time (s)"][x] - thrust_data["Time (s)"][x-1]
@@ -89,44 +88,28 @@ def boost():
 def coast():
     print("coast")
     global acceleration, apogee
-    net_acceleration = 0
-    u = 0
+    flap_extension = 0
     while (velocity > 0):
-
-        aeroDragValues = controls.active_aero_drag(altitude, velocity, u)
-        net_acceleration = -(constants.g + ((atmosphere.aero_drag(altitude, velocity) + aeroDragValues[0])/(rocket_mass)))
-        acceleration = net_acceleration
-        u = aeroDragValues[1]
+        predicted_alt = predict_alt(altitude, velocity, flap_extension)
+        flap_extension = controls.active_drag_PID(predicted_alt)
+        acceleration = -(constants.g + ((atmosphere.aero_drag(altitude, velocity) + controls.active_aero_drag(altitude, velocity, flap_extension))/(rocket_mass)))
         updateState()
 
     apogee = altitude
 
     print("apogee reached (m): " + str(apogee))
     print("time to apogee (s): " + str(current_time))
-    # ejection()
 
-# def ejection():
-#     print("ejection")
-#     global acceleration, current_time
+def predict_alt(alt_current, vel_current, flap_ext_current=0.2, time_step=10e-3):    
     
-#     delay_initial_time = current_time
-#     while (current_time <= delay_initial_time + ejection_delay):
-#         updateState()
-#     acceleration = 0
-#     recovery()
+    while (vel_current > 0):
+        net_acceleration = -(constants.g + ((atmosphere.aero_drag(alt_current, vel_current) + controls.active_aero_drag(alt_current, vel_current, flap_ext_current))/(constants.rocket_mass)))
+        acc_pred = net_acceleration
+        alt_current = alt_current + vel_current*time_step + 0.5*acc_pred*time_step**2
+        vel_current = vel_current + acc_pred*time_step
 
-# def recovery():
-#     print("recovery")
-#     global velocity, altitude
-#     while (velocity < 0 and altitude > 0):
-#         updateState()
-#     ground_hit()
+    return alt_current
 
-# def ground_hit():
-#     print("ground hit")
-#     print("SIM ended")
-
-# boost()
 
 ############ RUN SIM ##############
 launch_SIM(5)

@@ -1,5 +1,5 @@
 # Lists of Constants for Rocket
-DESIRED_APOGEE = 5000 #(m)
+DESIRED_APOGEE = 5200 #(m)
 
 rocket_mass = 23.782 # (Kg)
 g = 9.8 # (m/s^2)
