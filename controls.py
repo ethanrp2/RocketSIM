@@ -8,20 +8,24 @@ alt_pred = 0
 vel_pred = 0
 acc_pred = 0
 
-def active_aero_drag(z, velocity, flap_extention_percentage):
-    A_flaps = flap_extention_percentage * constants.flap_width * constants.flap_length_max
-    return 0.5*atmosphere.density(z)*(velocity**2)*constants.C_d_flaps*(A_flaps)
+#PID Variables:
+Kp = 1
+Ki = 0
+Kd = 0
 
-##### WORK ON THIS ########
-#TODO: Fix PID Method
 
-def active_drag_PID(alt_current, vel_current):
-    error = constants.DESIRED_APOGEE - predicted_apogee(alt_current, vel_current)
-    kp = 0
-    ki = 0
-    kd = 0
 
-    return 1
+def active_aero_drag(z, velocity, current_flap_ext):
+    
+    flap_ext_percentage = active_drag_PID(z, velocity, current_flap_ext)
+    A_flaps = flap_ext_percentage * constants.flap_width * constants.flap_length_max
+    return 0.5*atmosphere.density(z)*(velocity**2)*constants.C_d_flaps*(A_flaps), flap_ext_percentage
+
+def active_drag_PID(alt_current, vel_current, u):
+    #returns percentage of total flap extension
+    error = constants.DESIRED_APOGEE - predicted_apogee(alt_current, vel_current, u)
+
+    return Kp*(error/constants.DESIRED_APOGEE)*100
 
 def updateStatePredicted(time_step = 10e-3):
     global alt_pred, vel_pred, acc_pred
@@ -39,5 +43,3 @@ def predicted_apogee(alt_current, vel_current, flap_ext):
         updateStatePredicted()
 
     return alt_pred
-
-# print(predicted_apogee(3000, 250, 15))

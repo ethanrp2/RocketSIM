@@ -6,7 +6,9 @@ import pandas as pandas
 import atmosphere as atmosphere
 import math
 import controls as controls
+import sys
 
+# sys.setrecursionlimit(50000)
 #CLASS VARIABLES
 
 dt = 10e-3
@@ -88,12 +90,13 @@ def coast():
     print("coast")
     global acceleration, apogee
     net_acceleration = 0
+    u = 0
     while (velocity > 0):
-        if (altitude >3000):
-            net_acceleration = -(constants.g + ((atmosphere.aero_drag(altitude, velocity) + controls.active_aero_drag(altitude, velocity, 100))/(rocket_mass)))
-        else:
-            net_acceleration = -(constants.g + (atmosphere.aero_drag(altitude, velocity)/(rocket_mass)))
+
+        aeroDragValues = controls.active_aero_drag(altitude, velocity, u)
+        net_acceleration = -(constants.g + ((atmosphere.aero_drag(altitude, velocity) + aeroDragValues[0])/(rocket_mass)))
         acceleration = net_acceleration
+        u = aeroDragValues[1]
         updateState()
 
     apogee = altitude
