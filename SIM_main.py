@@ -5,6 +5,7 @@ import constants as constants
 import pandas as pandas
 import atmosphere as atmosphere
 import math
+import controls as controls
 
 #CLASS VARIABLES
 
@@ -86,8 +87,12 @@ def boost():
 def coast():
     print("coast")
     global acceleration, apogee
+    net_acceleration = 0
     while (velocity > 0):
-        net_acceleration = -(constants.g + (atmosphere.aero_drag(altitude, velocity)/(rocket_mass)))
+        if (altitude >3000):
+            net_acceleration = -(constants.g + ((atmosphere.aero_drag(altitude, velocity) + controls.active_aero_drag(altitude, velocity, 100))/(rocket_mass)))
+        else:
+            net_acceleration = -(constants.g + (atmosphere.aero_drag(altitude, velocity)/(rocket_mass)))
         acceleration = net_acceleration
         updateState()
 

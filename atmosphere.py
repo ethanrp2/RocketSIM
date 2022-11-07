@@ -6,6 +6,7 @@ B = 0.0098 # (degrees Kelvin/meter) --> Temoperature Lapse Rate
 R = 287.053 # (K*(J/Kg))
 rho_0 = 1.225 # (kg/m^3) --> Pressure under standard conditions (Pa)
 C_d = 0.35
+
 A = math.pi * constants.rocket_radius**2
 
 def density (z):
