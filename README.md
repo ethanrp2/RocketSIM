@@ -12,5 +12,6 @@
 
 
  ### Credits
- - AeroTech Thrust Data Table csv for M2500T
- - ISSUIUC/TARS-CONTROLS --> code framework for 1dof_sim_RK4.py and related classes (https://github.com/ISSUIUC/TARS-Controls)
+ - AeroTech Thrust Data Table csv for M2500T --> (https://www.thrustcurve.org/simfiles/5f4294d20002e900000003de/) 
+ - Code framework --> ISSUIUC/TARS-CONTROLS for 1dof_sim_RK4.py and related classes (https://github.com/ISSUIUC/TARS-Controls)
+ - Air density equation relative to altitude --> (https://www.homerenergy.com/products/pro/docs/latest/altitude.html)
