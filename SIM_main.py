@@ -12,7 +12,7 @@ import time
 current_time = 0
 apogee = 0
 
-#State Matricies: altitude [0], velocity [1], acceleration [2]
+#State Array: altitude [0], velocity [1], acceleration [2]
 x_state = [0, 0, 0]
 
 # Simulation State Dictionary
