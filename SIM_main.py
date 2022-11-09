@@ -6,39 +6,14 @@ import pandas as pandas
 import atmosphere as atmosphere
 import math
 import controls as controls
-import sys
+import time
 
-# sys.setrecursionlimit(50000)
 #CLASS VARIABLES
-
-dt = 10e-3
 current_time = 0
-
-motor_thrust = 90 #  (N)
-rocket_mass = constants.rocket_mass
-rocket_weight = constants.rocket_mass * constants.g # (N)
-
-altitude = 0
-velocity = 0
-acceleration = 0
-
 apogee = 0
 
-
-# LAUNCH VARIABLES
-ejection_delay = 0
-
-
-
-# State Space Matricies
-# --> x = Ax + Bu
-
-
-# A = [[1, dt, 0.5*(dt**2)],
-#      [0, 1, dt],
-#      [0, 0, 0]
-# ]
-
+#State Matricies: altitude [0], velocity [1], acceleration [2]
+x_state = [0, 0, 0]
 
 # Simulation State Dictionary
 sim_dict = { 
@@ -49,68 +24,60 @@ sim_dict = {
 }
 
 def updateState(time_step=10e-3): 
-    #TODO: Use State Space Form
+    global x_state, current_time, sim_dict
 
-    global acceleration, velocity, altitude, current_time, sim_dict
-
-    sim_dict["altitude"].append(altitude)
-    sim_dict["velocity"].append(velocity)
-    sim_dict["acceleration"].append(acceleration)
+    sim_dict["altitude"].append(x_state[0])
+    sim_dict["velocity"].append(x_state[1])
+    sim_dict["acceleration"].append(x_state[2])
     sim_dict["time"].append(current_time)
-    altitude = altitude + velocity*time_step + 0.5*acceleration*time_step**2
-    velocity = velocity + acceleration*time_step
+
+    x_state[0] = x_state[0] + x_state[1]*time_step + 0.5*x_state[2]*time_step**2
+    x_state[1] = x_state[1] + x_state[2]*time_step
     current_time += time_step
 
-def launch_SIM(ejection_delay_time):
-    global ejection_delay
-    ejection_delay = ejection_delay_time
-
+def launch_SIM():
     print("launch")
     boost()
 
 def boost():
     print ("boost")
-    global boost_time, acceleration
+    global boost_time, x_state
 
     thrust_data = pandas.read_csv("csv_data/AeroTech_M2500T_Trimmed.csv").to_dict()
     boost_time = thrust_data["Time (s)"][len(thrust_data["Time (s)"])-1]
     thrust_time_delta = thrust_data["Time (s)"][0]
 
     for x in thrust_data["Time (s)"]:
-        acceleration = (thrust_data["Thrust (N)"][x])/(rocket_mass) - constants.g - (atmosphere.aero_drag(altitude, velocity))/(rocket_mass)
-
+        
+        x_state[2] = (thrust_data["Thrust (N)"][x])/(constants.rocket_mass) - constants.g - (atmosphere.aero_drag(x_state))/(constants.rocket_mass)
         if(x!=0):
             thrust_time_delta = thrust_data["Time (s)"][x] - thrust_data["Time (s)"][x-1]
         updateState(thrust_time_delta)
-
     coast()
 
 def coast():
     print("coast")
-    global acceleration, apogee
+    global x_state, apogee
+
     flap_extension = 0
-    while (velocity > 0):
-        predicted_alt = predict_alt(altitude, velocity, flap_extension)
+    while (x_state[1] > 0):
+
+        predicted_alt = controls.predict_alt(x_state, flap_extension)
         flap_extension = controls.active_drag_PID(predicted_alt)
-        acceleration = -(constants.g + ((atmosphere.aero_drag(altitude, velocity) + controls.active_aero_drag(altitude, velocity, flap_extension))/(rocket_mass)))
+        x_state[2] = -(constants.g + ((atmosphere.aero_drag(x_state) + controls.active_aero_drag(x_state, flap_extension))/(constants.rocket_mass)))
         updateState()
 
-    apogee = altitude
+    apogee = x_state[0]
 
+
+def printSIMStatus():
     print("apogee reached (m): " + str(apogee))
     print("time to apogee (s): " + str(current_time))
-
-def predict_alt(alt_current, vel_current, flap_ext_current=0.2, time_step=10e-3):    
-    
-    while (vel_current > 0):
-        net_acceleration = -(constants.g + ((atmosphere.aero_drag(alt_current, vel_current) + controls.active_aero_drag(alt_current, vel_current, flap_ext_current))/(constants.rocket_mass)))
-        acc_pred = net_acceleration
-        alt_current = alt_current + vel_current*time_step + 0.5*acc_pred*time_step**2
-        vel_current = vel_current + acc_pred*time_step
-
-    return alt_current
+    print("sim runtime (s): " + str(time.time() - start_time))
 
 
 ############ RUN SIM ##############
-launch_SIM(5)
+start_time = time.time()
+launch_SIM()
+printSIMStatus()
 plotSIM.plotter(sim_dict, apogee)

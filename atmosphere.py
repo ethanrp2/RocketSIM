@@ -15,5 +15,7 @@ def density (z):
     rho_f = rho_0 * ((1-((B*z)/(T_0)))**(constants.g/(R*B)))*(T_0/(T_0-(B*z)))
     return rho_f
 
-def aero_drag (z, velocity):
-    return 0.5*density(z)*(velocity**2)*C_d*(A)
+def aero_drag (x_state):
+    z = x_state[0]
+    vel = x_state[1]
+    return 0.5*density(z)*(vel**2)*C_d*(A)

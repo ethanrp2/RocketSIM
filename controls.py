@@ -15,36 +15,29 @@ Kd = 0
 
 
 
-def active_aero_drag(z, velocity, flap_ext):
+def active_aero_drag(x_state, flap_ext):
+    z = x_state[0]
+    vel = x_state[1]
     A_flaps = flap_ext * constants.flap_width * constants.flap_length_max
-    # return 0.5*atmosphere.density(z)*(velocity**2)*constants.C_d_flaps*(A_flaps), flap_ext_percentage
-    return 0.5*atmosphere.density(z)*(velocity**2)*constants.C_d_flaps*(A_flaps)
+    return 0.5*atmosphere.density(z)*(vel**2)*constants.C_d_flaps*(A_flaps)
 
 def active_drag_PID(predicted_apogee):
-    #returns percentage of total flap extension
+    #returns ratio (0<=x<=1) of total flap extension
     error = predicted_apogee - constants.DESIRED_APOGEE
     control_out = Kp * error
     if (control_out > 1):
         control_out = 1
     elif (control_out < 0):
         control_out = 0
-    print("Flap ext: " + str(control_out))
+
     return control_out
-    # return 0.2
 
-# def updateStatePredicted(time_step = 10e-3):
-#     global alt_pred, vel_pred, acc_pred
-#     alt_pred = alt_pred + vel_pred*time_step + 0.5*acc_pred*time_step**2
-#     vel_pred = vel_pred + acc_pred*time_step
+def predict_alt(x_current, flap_ext_current, time_step=10e-3):    
+    x_current = [x_current[0], x_current[1], 0]
 
-# def predicted_apogee(alt_current, vel_current, flap_ext):
-#     global alt_pred, vel_pred, acc_pred
+    while (x_current[1] > 0):
+        x_current[2] = -(constants.g + ((atmosphere.aero_drag(x_current) + active_aero_drag(x_current, flap_ext_current))/(constants.rocket_mass)))
+        x_current[0] = x_current[0] + x_current[1]*time_step + 0.5*x_current[2]*time_step**2
+        x_current[1] = x_current[1] + x_current[2]*time_step
     
-#     alt_pred = alt_current
-#     vel_pred = vel_current
-#     while (vel_pred > 0):
-#         net_acceleration = -(constants.g + ((atmosphere.aero_drag(alt_pred, vel_pred) + active_aero_drag(alt_pred, vel_pred, flap_ext))/(constants.rocket_mass)))
-#         acc_pred = net_acceleration
-#         updateStatePredicted()
-
-#     return alt_pred
+    return x_current[0]
