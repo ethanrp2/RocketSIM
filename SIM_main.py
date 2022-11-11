@@ -1,5 +1,4 @@
 # This class creates a basic simulation of a rocket through its 5 stages with a constant time step then graphs it
-import matplotlib.pyplot as plt
 import plotSIM as plotSIM
 import constants as constants
 import pandas as pandas
