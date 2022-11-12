@@ -12,6 +12,7 @@
  - Full PID Controller for ADC
  - LQR Controller for ADC
  - Randomized wind vector
+ - Implement RK4 step
 
 ## Rocket Simulation Plot
 ![hello](assets/sim_plot_screenshot.png)
