@@ -41,7 +41,7 @@ sim_dict_noisy = {
 }
 
 def updateState(time_step=10e-3): 
-    global x_state, current_time, sim_dict
+    global x_state, current_time, sim_dict, x_state_kalman
 
     sim_dict["altitude"].append(x_state[0])
     sim_dict["velocity"].append(x_state[1])
@@ -56,7 +56,9 @@ def updateState(time_step=10e-3):
     sim_dict_noisy["acceleration"].append(sensors_noisy[1])
     sim_dict_noisy["time"].append(current_time)
 
-    x_state_kalman = kalman.update(sensors_noisy[0], sensors_noisy[1])
+    kalman.update(sensors_noisy[0], sensors_noisy[1])
+    x_state_kalman = kalman.getState()
+    
     sim_dict_kalman["altitude"].append(x_state_kalman[0])
     sim_dict_kalman["velocity"].append(x_state_kalman[1])
     sim_dict_kalman["acceleration"].append(x_state_kalman[2])
@@ -80,7 +82,7 @@ def wait():
 
 def boost():
     print ("boost")
-    global boost_time, x_state
+    global boost_time, x_state, x_state_kalman
 
     thrust_data = pandas.read_csv("csv_data/AeroTech_M2500T_Trimmed.csv").to_dict()
     
@@ -91,7 +93,7 @@ def boost():
 
     for x in thrust_data["Time (s)"]:
         
-        x_state[2] = (thrust_data["Thrust (N)"][x])/(constants.rocket_mass) - constants.g - (atmosphere.aero_drag(x_state))/(constants.rocket_mass)
+        x_state[2] = (thrust_data["Thrust (N)"][x])/(constants.rocket_mass) - constants.g - (atmosphere.aero_drag(x_state_kalman))/(constants.rocket_mass)
         if(x!=0):
             thrust_time_delta = thrust_data["Time (s)"][x] - thrust_data["Time (s)"][x-1]
         updateState(thrust_time_delta)
@@ -99,17 +101,18 @@ def boost():
 
 def coast():
     print("coast")
-    global x_state, apogee
+    global x_state, apogee, x_state_kalman
 
     flap_extension = 0
-    while (x_state[1] >= 0):
+    while (x_state_kalman[1] > 0):
 
-        predicted_alt = controls.predict_alt(x_state, flap_extension)
+        predicted_alt = controls.predict_alt(x_state_kalman, flap_extension)
         flap_extension = controls.active_drag_PID(predicted_alt)
-        x_state[2] = -(constants.g + ((atmosphere.aero_drag(x_state) + controls.active_aero_drag(x_state, flap_extension))/(constants.rocket_mass)))
+        x_state[2] = -(constants.g + ((atmosphere.aero_drag(x_state_kalman) + controls.active_aero_drag(x_state_kalman, flap_extension))/(constants.rocket_mass)))
         updateState()
+        # print(x_state_kalman[0])
 
-    apogee = x_state[0]
+    apogee = x_state_kalman[0]
 
 
 def printSIMStatus():

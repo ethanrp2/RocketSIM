@@ -92,10 +92,13 @@ def update(alt_input, accel_input) :
     P = (np.eye(len(K)) - (K @ H)) @ P_priori
     # current_time += dt
 
-    kalman_dict["altitude"].append(x_k[0,0])
-    kalman_dict["velocity"].append(x_k[1,0])
-    kalman_dict["acceleration"].append(x_k[2,0])    
-    x_k_return = [x_k[0], x_k[1], x_k[2]]
+    # kalman_dict["altitude"].append(x_k[0,0])
+    # kalman_dict["velocity"].append(x_k[1,0])
+    # kalman_dict["acceleration"].append(x_k[2,0])    
+    
+def getState():
+    # print("alt: " + str(x_k[0,0]) + "vel" + str(x_k[1,0]))
+    x_k_return = [x_k[0,0], x_k[1,0], x_k[2,0]]
     return x_k_return
 
 
