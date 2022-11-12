@@ -10,7 +10,7 @@ def plotter(sim_dict, sim_dict_noisy, sim_dict_kalman, apogee):
 
 
     fig,(alt_nc,vel_nc,accel_nc) = plt.subplots(3,1,figsize=(15,10), sharex=False)
-    plt.title("SIM PLOT", color='#F5B14C', fontsize = 35, pad=400)
+    plt.title("SIM PLOT", color='#F5B14C', fontsize = 30, pad=400)
 
     # Altitude Measurements vs Real Altitude vs Kalman Filter Graph (No Control)
     plt.legend(fontsize = 14) 

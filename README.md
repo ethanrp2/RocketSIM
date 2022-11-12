@@ -10,6 +10,9 @@
  - Kalman Filter for simulated noisy sensor data
  - State Space matricies format
 
+## Rocket Simulation Plot
+![hello](assets/sim_plot_screenshot.png)
+
  ### Credits
  - AeroTech Thrust Data Table csv for M2500T --> (https://www.thrustcurve.org/simfiles/5f4294d20002e900000003de/) 
  - ISSUIUC/TARS-CONTROLS Code Framework for 1dof_sim_RK4.py --> (https://github.com/ISSUIUC/TARS-Controls)
