@@ -17,7 +17,7 @@ def getBaroData(current_alt):
     return current_alt + np.normal(scale=((mbarToMetersMultiplier*1.5)/z))
 
 def getAccXData(current_acc_x):
-    #LSM9DS1 IMU --> datasheet: https://www.st.com/resource/en/datasheet/lsm9ds1.pdf
+    # LSM9DS1 IMU --> datasheet: https://www.st.com/resource/en/datasheet/lsm9ds1.pdf
     # Accuracy: ± 90 mg ≈ .090g ≈ 0.8829 m/s^2
     # Assume 95% of data falls between 2 standard deviations of mean
     # Use equation z = (x_bar - μ)/(σ - sqrt(n)) --> z is based on confidence level, x_bar is sample value, μ is mean of data, σ is standard deviation, n is number of samples

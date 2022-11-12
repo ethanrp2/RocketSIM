@@ -1,7 +1,7 @@
 ## This class contains methods for adding control to SIM_main
 ## Examples of control include aerodynamic drag systems, roll control, etc.
-import atmosphere as atmosphere
-import constants as constants
+import src.atmosphere as atmosphere
+import src.constants as constants
 
 #Predicted State Variables:
 alt_pred = 0

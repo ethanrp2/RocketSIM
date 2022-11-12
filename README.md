@@ -10,8 +10,9 @@
  - Kalman Filter for simulated noisy sensor data
  - State Space matricies format
 
-
  ### Credits
  - AeroTech Thrust Data Table csv for M2500T --> (https://www.thrustcurve.org/simfiles/5f4294d20002e900000003de/) 
- - Code framework --> ISSUIUC/TARS-CONTROLS for 1dof_sim_RK4.py and related classes (https://github.com/ISSUIUC/TARS-Controls)
+ - ISSUIUC/TARS-CONTROLS Code Framework for 1dof_sim_RK4.py --> (https://github.com/ISSUIUC/TARS-Controls)
  - Air density equation relative to altitude --> (https://www.homerenergy.com/products/pro/docs/latest/altitude.html)
+ - MS5611 Barometer Datasheet --> (https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7FMS5611-01BA03%7FB3%7Fpdf%7FEnglish%7FENG_DS_MS5611-01BA03_B3.pdf%7FCAT-BLPS0036)
+ - LSM9DS1 Intertial Measurement Unit (IMU) Datasheet --> (https://www.st.com/resource/en/datasheet/lsm9ds1.pdf)
