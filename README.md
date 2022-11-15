@@ -3,14 +3,13 @@
 - Plots Altitude, Velocity, Acceleration
 - Accounts for Aerodynamic Drag
 - Constantly calculates and predicts apogee based on current flap configuration
-- Active Drag Control System (ADC) with P controller for rocket to reach desired apogee (5200 m)
+- Active Drag Control System (ADCS) with PID controller for rocket to reach desired apogee (5200 m)
 - Simulated Noisy Sensor Data from IMU/Barometer
 - State Estimation using Kalman Filter with inputted noisy sensor data
 
  
 ## Future Additions to RocketSIM
- - Full PID Controller for ADC
- - LQR Controller for ADC
+ - LQR Controller for ADCS
  - Randomized wind vector
  - Implement RK4 step
 
