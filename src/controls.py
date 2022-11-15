@@ -9,10 +9,12 @@ vel_pred = 0
 acc_pred = 0
 
 #PID Variables:
-Kp = 0.1
-Ki = 0
-Kd = 0
+Kp = 0.0035
+Ki = 0.000001
+Kd = 0.0000001
 
+error_sum = 0
+error_derivative = 0
 
 
 def active_aero_drag(x_state, flap_ext):
@@ -22,9 +24,14 @@ def active_aero_drag(x_state, flap_ext):
     return 0.5*atmosphere.density(z)*(vel**2)*constants.C_d_flaps*(A_flaps)
 
 def active_drag_PID(predicted_apogee):
-    #returns ratio (0<=x<=1) of total flap extension
+    global error_sum
     error = predicted_apogee - constants.DESIRED_APOGEE
-    control_out = Kp * error
+    old_error = error_sum
+    error_sum += error
+    error_derivative = (error_sum-old_error)/constants.dt
+
+    control_out = (Kp * error) + (Ki * error_sum) + (Kd * error_derivative)
+
     if (control_out > 1):
         control_out = 1
     elif (control_out < 0):

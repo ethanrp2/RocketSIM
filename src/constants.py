@@ -10,3 +10,7 @@ rocket_Cd = 0.2
 flap_width = 0.0351 # (m)
 flap_length_max = 0.021 # (m)
 C_d_flaps = 0.7
+
+sim_start_delay = 3
+
+dt = 0.01

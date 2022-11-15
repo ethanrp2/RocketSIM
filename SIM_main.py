@@ -10,8 +10,10 @@ import src.kalman_filter as kalman
 
 #CLASS VARIABLES
 current_time = 0
-apogee = 0
-
+kalman_apogee = 0
+predicted_alt = constants.DESIRED_APOGEE
+coast_start_time = 0
+sim_runtime = 0
 #State Array: altitude [0], velocity [1], acceleration [2]
 x_state = [0, 0, 0]
 x_state_kalman = [0, 0, 0]
@@ -40,8 +42,16 @@ sim_dict_noisy = {
     "time": []
 }
 
+sim_error = {
+    "error": [],
+    "time": []
+}
+
 def updateState(time_step=10e-3): 
-    global x_state, current_time, sim_dict, x_state_kalman
+    global x_state, current_time, sim_dict, x_state_kalman, sim_dict_noisy, sim_error
+
+    sim_error["error"].append(predicted_alt-constants.DESIRED_APOGEE)
+    sim_error["time"].append(current_time)
 
     sim_dict["altitude"].append(x_state[0])
     sim_dict["velocity"].append(x_state[1])
@@ -74,20 +84,18 @@ def launch_SIM():
     wait()
 
 def wait():
-    kalman.initialize(0, 0, 0)
-    for x in range(300):
+    kalman.initialize(sensors.getBaroData(x_state[0]), 0, sensors.getAccXData(x_state[2]))
+    for x in range(int(constants.sim_start_delay/constants.dt)):
         updateState()
     
     boost()
 
 def boost():
     print ("boost")
-    global boost_time, x_state, x_state_kalman
+    global boost_time, x_state, x_state_kalman, coast_start_time
 
     thrust_data = pandas.read_csv("csv_data/AeroTech_M2500T_Trimmed.csv").to_dict()
     
-    # init_acc = (thrust_data["Thrust (N)"][0])/(constants.rocket_mass) - constants.g - (atmosphere.aero_drag(x_state))/(constants.rocket_mass)
-
     boost_time = thrust_data["Time (s)"][len(thrust_data["Time (s)"])-1]
     thrust_time_delta = thrust_data["Time (s)"][0]
 
@@ -97,32 +105,36 @@ def boost():
         if(x!=0):
             thrust_time_delta = thrust_data["Time (s)"][x] - thrust_data["Time (s)"][x-1]
         updateState(thrust_time_delta)
+    
+    coast_start_time = current_time
     coast()
 
 def coast():
     print("coast")
-    global x_state, apogee, x_state_kalman
+    global x_state, kalman_apogee, x_state_kalman, predicted_alt, coast_start_time, sim_runtime
 
     flap_extension = 0
     while (x_state_kalman[1] > 0):
 
         predicted_alt = controls.predict_alt(x_state_kalman, flap_extension)
+
         flap_extension = controls.active_drag_PID(predicted_alt)
+
         x_state[2] = -(constants.g + ((atmosphere.aero_drag(x_state_kalman) + controls.active_aero_drag(x_state_kalman, flap_extension))/(constants.rocket_mass)))
         updateState()
-        # print(x_state_kalman[0])
+    kalman_apogee = x_state_kalman[0]
+    sim_runtime = time.time() - start_time
 
-    apogee = x_state_kalman[0]
 
 
 def printSIMStatus():
-    print("apogee reached (m): " + str(apogee))
+    print("kalman apogee reached (m): " + str(kalman_apogee))
     print("time to apogee (s): " + str(current_time))
-    print("sim runtime (s): " + str(time.time() - start_time))
+    print("sim runtime (s): " + str(sim_runtime))
 
 
 ############ RUN SIM ##############
 start_time = time.time()
 launch_SIM()
 printSIMStatus()
-plotSIM.plotter(sim_dict, sim_dict_noisy, sim_dict_kalman, apogee)
+plotSIM.plotter(sim_dict, sim_dict_noisy, sim_dict_kalman, sim_error, kalman_apogee, coast_start_time, sim_runtime)
