@@ -3,28 +3,27 @@
 import src.atmosphere as atmosphere
 import src.constants as constants
 import numpy as np
-import constants as const
 # File Variables:
-dt = const.dt
+dt = constants.dt
 
 # PID Variables:
 Kp = 0.0035
 Ki = 0.000001
 Kd = 0.0000001
 
-# LQR Variables/Matricies
-A = np.array([1.0, dt, 0.5*(dt**2)],
-             [0, 1.0, dt],
-             [0, 0, 1.0])
+# # LQR Variables/Matricies
+# A = np.array([1.0, dt, 0.5*(dt**2)],
+#              [0, 1.0, dt],
+#              [0, 0, 1.0])
 
-B = np.array([0.5*(dt**2)],
-             [dt],
-             [1.0])
+# B = np.array([0.5*(dt**2)],
+#              [dt],
+#              [1.0])
 
-Q = np.array([1.0, 0, 0],
-             [0, 1.0, 0],
-             [0, 0, 1.0])
-R = np.array([1.0])
+# Q = np.array([1.0, 0, 0],
+#              [0, 1.0, 0],
+#              [0, 0, 1.0])
+# R = np.array([1.0])
 
 error_sum = 0
 error_derivative = 0
